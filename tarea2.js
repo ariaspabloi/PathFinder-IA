@@ -187,8 +187,8 @@ function mainAlgoritmo1(lab) {
     // fronteras inicial y final
     const nodoRaiz = new Nodo([lab.filInicio, lab.colInicio], null, "", [])
     const nodoFin = new Nodo([lab.filFin, lab.colFin], null, "", [])
-    const estadosRecorridosInicio = new Map()
-    const estadosRecorridosFin = new Map()
+    const estadosRecorridosInicio = new Set()
+    const estadosRecorridosFin = new Set()
     let fronteraInicioMap = new Map()
     let fronteraFinMap = new Map()
     let fronteraTemp;
@@ -209,7 +209,7 @@ function mainAlgoritmo1(lab) {
             }
         }
         //Agregar nodos en la frontera a los estados ya recorridos
-        fronteraInicioMap.forEach((nodo, key) => estadosRecorridosInicio.set(key, nodo))
+        fronteraInicioMap.forEach((nodo, key) => estadosRecorridosInicio.add(key))
         //Generar nuevos hijos, que no esten ya recorridos para actualizar la frontera inicial
         fronteraTemp = new Map()
         fronteraInicioMap.forEach((nodo, key) => {
@@ -236,7 +236,7 @@ function mainAlgoritmo1(lab) {
             }
         }
         //Agregar nodos en la frontera a los estados ya recorridos
-        fronteraFinMap.forEach((nodo, key) => estadosRecorridosFin.set(key, nodo))
+        fronteraFinMap.forEach((nodo, key) => estadosRecorridosFin.add(key))
         //Generar nuevos hijos, que no esten ya recorridos para actualizar la frontera final
         fronteraTemp = new Map()
         fronteraFinMap.forEach((nodo, key) => {
@@ -257,10 +257,10 @@ function mainAlgoritmo1(lab) {
 function mainAlgoritmo2(lab) {
     const nodoRaiz = new Nodo([lab.filInicio, lab.colInicio], null, "", [])
     //Crear priorityQueue y map de estados recorridos
-    const estadosRecorridos = new Map()
+    const estadosRecorridos = new Set()
     const fronteraQueue = new PriorityQueueNodos(lab)
     fronteraQueue.agregar(nodoRaiz)
-    estadosRecorridos.set(nodoRaiz.key, nodoRaiz)
+    estadosRecorridos.add(nodoRaiz.key)
     let nodoExtraido
     while (fronteraQueue.largo() !== 0) {
         //Quitar nodo de la frontera
@@ -275,7 +275,7 @@ function mainAlgoritmo2(lab) {
         //Generar hijos, agregar los que ya no se han recorridos y agregarlos a la frontera
         nodoExtraido.generarHijos(lab).forEach(n => {
             if (!estadosRecorridos.has(n.key)) {
-                estadosRecorridos.set(n.key, n)
+                estadosRecorridos.add(n.key)
                 fronteraQueue.agregar(n)
                 nodos2 += 1
             }

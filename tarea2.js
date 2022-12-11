@@ -2,7 +2,7 @@ let nodos1 = 1
 let nodos2 = 1
 
 class Laberinto {
-    constructor(m1, m2, nFilas, nCol, filInicio, colInicio, filFin, colFin, nBloques) {
+    constructor(nFilas, nCol, filInicio, colInicio, filFin, colFin, nBloques) {
         this.nFilas = nFilas
         this.nCol = nCol
         this.filInicio = filInicio
@@ -10,11 +10,11 @@ class Laberinto {
         this.filFin = filFin
         this.colFin = colFin
         this.nBloques = nBloques + 2
-        this.matriz = this.generarMatriz(m1, m2)
+        this.matriz = this.generarMatriz()
     }
 
 
-    generarMatriz(m1, m2) {
+    generarMatriz() {
         let matriz = Array(this.nFilas).fill().map(e => e = Array(this.nCol).fill().map(x => x = 0))
         let celdasOcupadas = [`${this.filFin}-${this.colFin}`, `${this.filInicio}-${this.colInicio}`]
         matriz[this.filFin][this.colFin] = 1
@@ -26,26 +26,16 @@ class Laberinto {
             if (celdasOcupadas.includes(celda)) continue
             celdasOcupadas.push(celda)
             matriz[fila][columna] = -1
-            m1[fila][columna].style.backgroundColor = "#010000"
-            m2[fila][columna].style.backgroundColor = "#010000"
-            m1[fila][columna].style.border = "4px solid #C7141B"
-            m2[fila][columna].style.border = "4px solid #C7141B"
-            m1[fila][columna].style.borderRadius = "18px"
-            m2[fila][columna].style.borderRadius = "18px"
         }
         return matriz
     }
 
+    //EXPLICAR CORTO
     tieneLibre(fil, col) {
-        if (this.matriz[fil][col] === 0 || this.matriz[fil][col] === 1) {
-            if (fil == this.filInicio && col == this.colInicio) return true;
-            if (fil == this.filFin && col == this.colFin) return true;
-            htmlMatrix[fil][col].style.border = "0px solid";
-            htmlMatrix[fil][col].style.backgroundColor = "#848484";
-            return true
-        }
+        return (this.matriz[fil][col] !== -1)
     }
 
+    //EXPLICAR CORTO
     estadoValido(i, j) {
         return (i >= 0 &&
             i < 17 &&
@@ -54,12 +44,14 @@ class Laberinto {
             this.tieneLibre(i, j))
     }
 
+    //EXPLICAR CORTO
     tienePremio(fil, col) {
         return this.matriz[fil][col] === 1
     }
 }
 
 class Nodo {
+    //EXPLICAR
     constructor(estado, padre, accion, movimientos, pasos = 0) {
         this.estado = estado
         this.padre = padre
@@ -69,10 +61,12 @@ class Nodo {
         this.key = this.estado[0] + '-' + this.estado[1]
     }
 
+    //EXPLICAR CORTO
     valor(lab) {
         return Math.abs(this.estado[0] - lab.filFin) + Math.abs(this.estado[1] - lab.colFin) + this.pasos
     }
 
+    //EXPLICAR
     generarNodoIzquierda(lab) {
         const i = this.estado[0]
         const j = this.estado[1] - 1
@@ -125,6 +119,7 @@ class Nodo {
         )
     }
 
+    //EXPLICAR CORTO
     generarHijos(lab) {
         const hijos = []
         hijos.push(this.generarNodoIzquierda(lab))
@@ -184,7 +179,7 @@ class PriorityQueueNodos {
     }
 }
 
-
+//EXPLICAR
 function mainAlgoritmo1(lab) {
     //Creacion
     // nodo inicial y final
@@ -208,8 +203,6 @@ function mainAlgoritmo1(lab) {
             if (fronteraFinMap.has(key)) {
                 const nodoSolFin = fronteraFinMap.get(key)
                 return {
-                    nodoSol: [nodo, nodoSolFin],
-                    lab: lab.matriz,
                     movimientos: [...nodo.movimientos, ...nodoSolFin.pasosVolteados()],
                     pasos: nodo.pasos + nodoSolFin.pasos
                 }
@@ -260,6 +253,7 @@ function mainAlgoritmo1(lab) {
     return null;
 }
 
+//EXPLICAR
 function mainAlgoritmo2(lab) {
     const nodoRaiz = new Nodo([lab.filInicio, lab.colInicio], null, "", [])
     //Crear priorityQueue y map de estados recorridos
@@ -268,13 +262,12 @@ function mainAlgoritmo2(lab) {
     fronteraQueue.agregar(nodoRaiz)
     estadosRecorridos.set(nodoRaiz.key, nodoRaiz)
     let nodoExtraido
-    while (fronteraQueue.largo() != 0) {
+    while (fronteraQueue.largo() !== 0) {
         //Quitar nodo de la frontera
         nodoExtraido = fronteraQueue.sacar()
         //Test-Objetivo
         if (lab.tienePremio(nodoExtraido.estado[0], nodoExtraido.estado[1])) {
             return {
-                nodoSol: [nodoExtraido],
                 movimientos: nodoExtraido.movimientos,
                 pasos: nodoExtraido.pasos
             }
@@ -311,98 +304,38 @@ function printSquareMatrix(mat, lab) {
     }
 }
 
-function createTable(tableData) {
-    let arr = Array(17).fill().map(e => e = Array(15).fill().map(x => x = 0))
-    let table = document.createElement('table');
-    let tableBody = document.createElement('tbody');
-
-    for (let i = 0; i < 17; i++) {
-        let row = document.createElement('tr');
-        for (let j = 0; j < 15; j++) {
-            let cell = document.createElement('td');
-            arr[i][j] = cell
-            cell.className = "div1";
-            cell.appendChild(document.createTextNode(""));
-            row.appendChild(cell);
-        }
-        tableBody.appendChild(row);
-    }
-    table.appendChild(tableBody);
-    document.body.appendChild(document.createElement('br'));
-    document.body.appendChild(document.createElement('br'));
-    document.body.appendChild(document.createElement('br'));
-    document.body.appendChild(document.createElement('br'));
-    let subtitulo = document.createElement('h2')
-    let velocidad = document.createElement('p')
-    let nodosCreados = document.createElement('p')
-    let pasos = document.createElement('p')
-    subtitulo.className = "subtitulo"
-    velocidad.className = "velocidad"
-    nodosCreados.className = "nodosCreados"
-    pasos.className = "pasos"
-    document.body.appendChild(subtitulo);
-    document.body.appendChild(velocidad);
-    document.body.appendChild(nodosCreados);
-    document.body.appendChild(pasos);
-    document.body.appendChild(table);
-    return arr
-}
-
-function pintarSolucion(nodosSol, lab) {
-    nodosSol.forEach(n => {
-        let nodoTmp = n;
-        while (nodoTmp !== null) {
-            htmlMatrix[nodoTmp.estado[0]][nodoTmp.estado[1]].style.backgroundColor = "#100D99";
-            nodoTmp = nodoTmp.padre
-        }
-    })
-    htmlMatrix[lab.filInicio][lab.colInicio].style.backgroundColor = "#26632E"
-    htmlMatrix[lab.filFin][lab.colFin].style.backgroundColor = "#26632E"
-}
-
-function pintarDetalles(index, subtitulo, velocidad, nodosCreados, pasos) {
-    let subtituloHtml = document.querySelectorAll(".subtitulo")[index];
-    let velocidadHtml = document.querySelectorAll(".velocidad")[index];
-    let nodosCreadosHtml = document.querySelectorAll(".nodosCreados")[index];
-    let pasosHtml = document.querySelectorAll(".pasos")[index];
-    subtituloHtml.innerText = subtitulo
-    velocidadHtml.innerText = velocidad
-    nodosCreadosHtml.innerText = nodosCreados
-    pasosHtml.innerText = pasos
-}
-
-
+//EXPLICAR CORTO
 let start;
-let timeTaken;
-let htmlMatrix1 = createTable()
-let htmlMatrix2 = createTable()
-let htmlMatrix = htmlMatrix1
-const lab = new Laberinto(htmlMatrix1, htmlMatrix2, 17, 15, 8, 7, 15, 12, 40)
+const lab = new Laberinto(17, 15, 8, 7, 15, 12, 40)
 
 start = performance.now();
 const algoritmo1 = mainAlgoritmo1(lab)
-timeTaken = performance.now() - start;
-pintarSolucion(algoritmo1.nodoSol, lab)
-pintarDetalles(0, "Algoritmo1", timeTaken + "ms", nodos1 + " nodos generados.", algoritmo1.pasos + " pasos")
+let timeTaken1 = performance.now() - start;
 
-htmlMatrix = htmlMatrix2
 start = performance.now();
 const algoritmo2 = mainAlgoritmo2(lab)
-timeTaken = performance.now() - start;
-pintarSolucion(algoritmo2.nodoSol, lab)
-pintarDetalles(1, "Algoritmo2", timeTaken + "ms", nodos2 + " nodos generados.", algoritmo2.pasos + " pasos")
+let timeTaken2 = performance.now() - start;
 
 printSquareMatrix(lab.matriz, lab)
+
+
+
 if (!algoritmo1) {
-    console.log("ALgoritmo1: el laberinto no tiene solucion")
+    console.log("Algoritmo1: el laberinto no tiene solucion")
+    console.log(`Algoritmo1 tiempo: ${timeTaken1}ms.`)
 } else {
+    console.log(`Algoritmo1 tiempo: ${timeTaken1}ms.`)
     console.log(`Algoritmo1 movimientos: ${algoritmo1.movimientos}`)
     console.log(`Algoritmo1 pasos: ${algoritmo1.pasos}`)
+    console.log(`Algoritmo1 nodos diferentes generados: ${nodos1}`)
 }
 console.log("///////////////////")
 if (!algoritmo2) {
-    console.log("ALgoritmo2: el laberinto no tiene solucion")
+    console.log("Algoritmo2: el laberinto no tiene solucion")
+    console.log(`Algoritmo2 tiempo: ${timeTaken2}ms.`)
 } else {
+    console.log(`Algoritmo2 tiempo: ${timeTaken2}ms.`)
     console.log(`Algoritmo2 movimientos: ${algoritmo2.movimientos}`)
     console.log(`Algoritmo2 pasos: ${algoritmo2.pasos}`)
+    console.log(`Algoritmo2 nodos diferentes generados: ${nodos2}`)
 }
